@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:mera_operator/services/snackbar.dart';
+import 'package:mera_operator/screens/operator_bookings.dart';
 
 class OperatorAuth extends ChangeNotifier {
     String email = 'Unknown';
@@ -16,13 +17,21 @@ class OperatorAuth extends ChangeNotifier {
     }
 
     Future<void> oplogin(BuildContext context) async {
+        print("Atleast try to login pal");
+
         try {
         UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: this.email,
             password: this.password
         );
         _operatorUser = userCredential.user;
+        
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => OperatorBookings()));
+
         showSnackBar('Operator Logged In!', context);
+
         } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
             showSnackBar('No user found for that email.', context);
@@ -35,7 +44,7 @@ class OperatorAuth extends ChangeNotifier {
     }
 
 
-    Future<void> oplogout(BuildContext context) async {    
+    Future<void> oplogout(BuildContext context) async {
         try {
         // signout code
         await FirebaseAuth.instance.signOut();

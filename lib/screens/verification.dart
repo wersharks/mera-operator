@@ -3,7 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 // import 'package:intl_phone_field/intl_phone_field.dart';
-// import 'package:mera_operator/services/auth/otp_signin.dart';
+import 'package:mera_operator/services/auth/operator_signin.dart';
 import 'package:mera_operator/utilities/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:mera_operator/utilities/size_config.dart';
@@ -35,9 +35,23 @@ class _VerificationState extends State<Verification> {
     SizeConfig().init(context);
   }
 
+  String? validateEmail(String? value) {
+      String pattern =
+          r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+          r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+          r"{0,253}[a-zA-Z0-9])?)*$";
+      RegExp regex = RegExp(pattern);
+      if (value == null || value.isEmpty || !regex.hasMatch(value))
+        return 'Enter a valid email address';
+      else
+        return null;
+    }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       floatingActionButton: (isOTPScreen)
           ? FloatingActionButton(
               child: Container(
@@ -167,6 +181,13 @@ class _VerificationState extends State<Verification> {
                       setState(() {});
                     },
                     child: TextFormField(
+                      validator: (value) => validateEmail(value),
+
+                      onChanged: (value) {
+                        Provider.of<OperatorAuth>(context, listen: false).email =
+                            value;
+                      },
+
                       decoration: InputDecoration(
                         fillColor: Colors.white,
                         filled: true,
@@ -198,6 +219,11 @@ class _VerificationState extends State<Verification> {
                       setState(() {});
                     },
                     child: TextFormField(
+                        onChanged: (value) {
+                          Provider.of<OperatorAuth>(context, listen: false).password =
+                              value;
+                        },
+
                         keyboardType: TextInputType.text,
                         // controller: _userPasswordController,
                         obscureText: !_passwordVisible,//This will obscure text dynamically
@@ -248,7 +274,7 @@ class _VerificationState extends State<Verification> {
                 child: TextButton(
                         style: buttonStyle,
                         onPressed: () async {
-
+                            Provider.of<OperatorAuth>(context, listen: false).oplogin(context);
                         },
                         child: Text(
                         'Login',

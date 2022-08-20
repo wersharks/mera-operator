@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => Verification()));
+                      builder: (context) => LoadingPage()));
             },
           )
         ],
