@@ -22,8 +22,10 @@ class _VerificationState extends State<Verification> {
   FocusNode otpFocusNode = FocusNode();
   bool isOTPScreen = false;
   //final sizeConfig = SizeConfig();
+  bool _passwordVisible = false;
   @override
   void initState() {
+    _passwordVisible = false;
     super.initState();
   }
 
@@ -184,36 +186,76 @@ class _VerificationState extends State<Verification> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 8,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 35),
                 child: Form(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  key: _formKey,
                   child: Focus(
                     onFocusChange: (hasFocus) {
                       setState(() {});
                     },
                     child: TextFormField(
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        counterText: '',
-                        labelStyle: TextStyle(
-                            color: mobileNumberFocusNode.hasFocus
-                                ? Colors.orange
-                                : Colors.black54),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        labelText: 'Email',
-                      ),
+                        keyboardType: TextInputType.text,
+                        // controller: _userPasswordController,
+                        obscureText: !_passwordVisible,//This will obscure text dynamically
+                        decoration: InputDecoration(
+                            labelText: 'Password',
+                            hintText: 'Enter your password',
+                          
+                            fillColor: Colors.white,
+                            filled: true,
+                            counterText: '',
+                            labelStyle: TextStyle(
+                                color: mobileNumberFocusNode.hasFocus
+                                    ? Colors.orange
+                                    : Colors.black54),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
 
-                    ),
+                            // Here is key idea
+                            suffixIcon: IconButton(
+                                icon: Icon(
+                                  // Based on passwordVisible state choose the icon
+                                  _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                                  color: Theme.of(context).primaryColorDark,
+                                  ),
+                                onPressed: () {
+                                  // Update the state i.e. toogle the state of passwordVisible variable
+                                  setState(() {
+                                      _passwordVisible = !_passwordVisible;
+                                  });
+                                },
+                                ),
+                              ),
+                            ),
+
                   ),
                 ),
               ),
+              SizedBox(
+                height: 16,
+              ),
+              SizedBox(
+                width: 325,
+                height: getProportionateScreenHeight(50),
+                child: TextButton(
+                        style: buttonStyle,
+                        onPressed: () async {
 
+                        },
+                        child: Text(
+                        'Login',
+                          style: buttonTextStyle,
+                        )),
+                ),
+            
             // if (isOTPScreen)
             //   SizedBox(
             //     height: 10,
@@ -222,13 +264,13 @@ class _VerificationState extends State<Verification> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Didn't get OTP? ", style: textStyle),
-                  TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Resend',
-                        style: TextStyle(color: Colors.red, fontSize: 17),
-                      ))
+                  // Text("Didn't get OTP? ", style: textStyle),
+                  // TextButton(
+                  //     onPressed: () {},
+                  //     child: Text(
+                  //       'Resend',
+                  //       style: TextStyle(color: Colors.red, fontSize: 17),
+                  //     ))
                 ],
               ),
             SizedBox(
