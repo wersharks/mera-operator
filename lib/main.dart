@@ -4,6 +4,8 @@ import 'package:mera_operator/screens/home_page.dart';
 // import 'package:mera_aadhar/screens/verification.dart';
 // import 'package:mera_aadhar/services/auth/otp_signin.dart';
 import 'package:mera_operator/services/auth/operator_signin.dart';
+import 'package:mera_operator/providers/map_provider.dart';
+
 import 'package:mapmyindia_gl/mapmyindia_gl.dart';
 
 import 'package:provider/provider.dart';
@@ -26,7 +28,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => OperatorAuth())],
+      providers: [
+        ChangeNotifierProvider(create: (context) => OperatorAuth()),
+        ChangeNotifierProvider(create: (context) => MapProvider())
+      ],
       child: MaterialApp(
         title: 'मेरा Operator',
         theme: ThemeData(

@@ -1,5 +1,6 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:mera_operator/services/auth/operator_signin.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/services.dart';
 // import 'package:mera_operator/api/map_api.dart';
@@ -20,6 +21,8 @@ import 'package:mera_operator/models/operator_data_model.dart';
 import 'package:mera_operator/models/booking_model.dart';
 import 'package:background_location/background_location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mera_operator/providers/map_provider.dart';
+import 'package:provider/provider.dart';
 
 class OperatorBookings extends StatefulWidget {
   const OperatorBookings({Key? key}) : super(key: key);
@@ -33,8 +36,6 @@ class _OperatorBookingsState extends State<OperatorBookings> {
   late MapmyIndiaMapController _mapController;
   LatLng pinLocation = LatLng(25.321684, 82.987289);
   Symbol? location_pin = null;
-  var userMapPins = new Map();
-  String _locationText = "...";
   OperatorDB _odb = new OperatorDB();
 
   String? _serviceError = '';
@@ -43,6 +44,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
   bool _permission = false;
   // LocationData? _currentLocation;
   String? address = "Getting...";
+  String _locationText = "Loc";
 
   @override
   void initState() {
@@ -121,7 +123,6 @@ class _OperatorBookingsState extends State<OperatorBookings> {
 
 
   void addOrUpdateLocationMarker(LatLng latlng) async {
-    print("Add or update location marker");
     if(location_pin == null){
       location_pin = await _mapController.addSymbol(SymbolOptions(
           draggable: true,
@@ -145,7 +146,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
     return _mapController.addImage(name, list);
   }
 
-  void addBookingRequestPins() async {
+  void addBookingRequestPins(BuildContext context) async {
     print("bookings request pin");
     BookingDB bdb = new BookingDB();
     List<Booking> lst = await bdb.getOperatorCurrentBooking();
@@ -153,40 +154,52 @@ class _OperatorBookingsState extends State<OperatorBookings> {
     
     // _locationText = "You have ${lst.length} requests for service!";
     // _locationText = "lloaed";
-
+    var pins = new Map();
     for(final e in lst){
-      var bookin = e;
-      addOrUpdateBookingPins(bookin);
+      var booking = e;
+      LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
+
+      SymbolOptions symops = SymbolOptions(
+          draggable: true,
+          iconImage: "iconuser",
+          iconSize: 0.5,
+          geometry: latlng);
+
+      Symbol sym = await _mapController.addSymbol(symops);
+      pins[booking.bookingId!] = sym;
+      Provider.of<MapProvider>(context, listen: false).setPins(pins);
     }
 
-    _locationText = "You have ${userMapPins.length} requests for service!";
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState((){}));
+
+    // _locationText = "You have ${userMapPins.length} requests for service!";
+    // WidgetsBinding.instance.addPostFrameCallback((_) => setState((){}));
     // TODO: Why? fix it, temp soln https://stackoverflow.com/questions/48844804/flutter-setstate-not-updating-inner-stateful-widget/63307118#63307118
 
   }
 
-  void addOrUpdateBookingPins(Booking booking) async {
-    LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
-    print("latlng ${latlng.toString()}");
-    SymbolOptions symops = SymbolOptions(
-        draggable: true,
-        iconImage: "iconuser",
-        iconSize: 0.5,
-        geometry: latlng);
+  // void addOrUpdateBookingPins(Booking booking) async {
+  //   LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
+  //   print("latlng ${latlng.toString()}");
+  //   SymbolOptions symops = SymbolOptions(
+  //       draggable: true,
+  //       iconImage: "iconuser",
+  //       iconSize: 0.5,
+  //       geometry: latlng);
 
-    print("keyidop: ${booking.bookingId}");
-      Symbol sym = await _mapController.addSymbol(symops);
-      userMapPins[booking.bookingId!] = sym;
+  //   print("keyidop: ${booking.bookingId}");
+  //     Symbol sym = await _mapController.addSymbol(symops);
 
-    // if(userMapPins.containsKey(booking.bookingId!)){
-    //   // Update marker
-    //   Symbol sym = userMapPins[booking.bookingId!];
-    //   await _mapController.updateSymbol(sym, symops);
-    // } else {
-    //   Symbol sym = await _mapController.addSymbol(symops);
-    //   userMapPins[booking.bookingId!] = sym;
-    // }
-  }
+  //     userMapPins[booking.bookingId!] = sym;
+
+  //   // if(userMapPins.containsKey(booking.bookingId!)){
+  //   //   // Update marker
+  //   //   Symbol sym = userMapPins[booking.bookingId!];
+  //   //   await _mapController.updateSymbol(sym, symops);
+  //   // } else {
+  //   //   Symbol sym = await _mapController.addSymbol(symops);
+  //   //   userMapPins[booking.bookingId!] = sym;
+  //   // }
+  // }
 
 //   void registerDeregisterOperators() async {
 //       String lat = pinLocation.latitude.toString();
@@ -206,10 +219,13 @@ class _OperatorBookingsState extends State<OperatorBookings> {
 //       });
 //   }
 
+  void symbolCallback(BuildContext context, Symbol symbol){
+    print("symbol! ${symbol.options.geometry!.toJson()}");
+    
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("Widget finally rebuild");
-    print(pinLocation);
     return Scaffold(
       backgroundColor: Color(0xFFFF4B3A),
       body: SlidingUpPanel(
@@ -224,64 +240,187 @@ class _OperatorBookingsState extends State<OperatorBookings> {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30), topRight: Radius.circular(30)),
           ),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.arrow_drop_up_outlined,
-                size: 40,
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.house,
-                  color: Colors.black,
-                  size: 36,
-                ),
-                title: Text(
-                  _locationText,
-                  style: GoogleFonts.poppins(
-                    textStyle:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                  ),
-                ),
-                subtitle: Text(
-                  'Mobile Number: 9305895903',
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFFB2B2B2),
-                      fontSize: 16),
-                ),
-                trailing: IconButton(
-                  icon: new Icon(Icons.refresh),
-                  highlightColor: Colors.pink,
-                  onPressed: () async{
-                    await _mapController.clearSymbols();
-                    addBookingRequestPins();
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                height: 70,
-                width: 315,
-                decoration: BoxDecoration(
-                    color: Color(0xFFF8774A),
-                    borderRadius: BorderRadius.circular(30)),
-                child: Center(
-                  child: Text(
-                    'Select an operator for yourself',
-                    style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: Colors.white)),
-                  ),
-                ),
-              ),
-            ],
+          child: Consumer<MapProvider>(
+            builder: (context, model, child) {
+              if(!model.isOperatorIdle){
+                  return Column(
+                      children: [
+                        const Icon(
+                          Icons.arrow_drop_up_outlined,
+                          size: 40,
+                        ),
+                        ListTile(
+                          leading: const Icon(
+                            Icons.house,
+                            color: Colors.black,
+                            size: 36,
+                          ),
+                          title: Text(
+                          model.locationText,
+                          style: GoogleFonts.poppins(
+                            textStyle:
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                          ),
+                        ),
+                          subtitle: Text(
+                            'Mobile Number: 9305895903',
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFB2B2B2),
+                                fontSize: 16),
+                          ),
+                          trailing: IconButton(
+                            icon: new Icon(Icons.refresh),
+                            highlightColor: Colors.pink,
+                            onPressed: () async{
+                              // await _mapController.clearSymbols();
+                              // addBookingRequestPins();
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                          height: 70,
+                          width: 315,
+                          decoration: BoxDecoration(
+                              color: Color(0xFFF8774A),
+                              borderRadius: BorderRadius.circular(30)),
+                          child: Center(
+                            child: Text(
+                              'Select user to service!',
+                              style: GoogleFonts.poppins(
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                      ],
+                  );
+              
+              }
+              else {
+                return Column(
+                      children: [
+                        const Icon(
+                          Icons.arrow_drop_up_outlined,
+                          size: 40,
+                        ),
+                        ListTile(
+                          leading: const Icon(
+                            Icons.house,
+                            color: Colors.black,
+                            size: 36,
+                          ),
+                          title: Text(
+                          "Updation (Slot : 1 pm to 2 pm)",
+                          style: GoogleFonts.poppins(
+                            textStyle:
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                          ),
+                        ),
+                          subtitle: Text(
+                            'B-116 Hostel C - Thapar University, Patiala, Punjab, India',
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFB2B2B2),
+                                fontSize: 16),
+                          ),
+                          trailing: IconButton(
+                            icon: new Icon(Icons.refresh),
+                            highlightColor: Colors.pink,
+                            onPressed: () async{
+                              // await _mapController.clearSymbols();
+                              // addBookingRequestPins();
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          height: 70,
+                          width: 315,
+                          child: Row (
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox.fromSize(
+                              size: Size(65, 65), // button width and height
+                              child: ClipOval(
+                                child: Material(
+                                  color: Colors.lightGreen, // button color
+                                  child: InkWell(
+                                    splashColor: Colors.green, // splash color
+                                    onTap: () {}, // button pressed
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Icon(Icons.call),
+                                        Text("Call"), // icon // text
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            SizedBox.fromSize(
+                              size: Size(65, 65), // button width and height
+                              child: ClipOval(
+                                child: Material(
+                                  color: Colors.orange, // button color
+                                  child: InkWell(
+                                    splashColor: Colors.blue, // splash color
+                                    onTap: () {}, // button pressed
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Icon(Icons.directions), // icon
+                                        Text("Nav"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ]
+                        ),
+                        
+                        ),
+                        
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          height: 70,
+                          width: 315,
+                          decoration: BoxDecoration(
+                              color: Color(0xFFF8774A),
+                              borderRadius: BorderRadius.circular(30)),
+                          child: Center(
+                            child: Text(
+                              'Confirmation OTP',
+                              style: GoogleFonts.poppins(
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                      ],
+                  );
+              
+              }
+            },
           ),
         ),
+        
         body: Column(
           children: [
             const SizedBox(
@@ -320,17 +459,22 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                       myLocationTrackingMode: MyLocationTrackingMode.Tracking,
                       onMapCreated: (map) async {
                         _mapController = map;
+                        _mapController.onSymbolTapped.add((Symbol symbol){
+                          symbolCallback(context, symbol);
+                        });
                       },
                       onStyleLoadedCallback: () {
                         addImageFromAsset("iconuser", "assets/userpin_blue.png");
-                        addBookingRequestPins();
+                        addBookingRequestPins(context);
                         // openMapmyIndiaPlacePickerWidget();
                       },
                     ),
                   ),
                 )),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Provider.of<OperatorAuth>(context, listen: false).oplogout(context);
+                  },
                   child: Padding(
                     padding: EdgeInsets.all(25),
                     child: Container(
@@ -351,7 +495,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                                 color: Colors.black,
                               ),
                               Text(
-                                'Appointments',
+                                'Logout',
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.poppins(
                                     textStyle: const TextStyle(
