@@ -12,6 +12,18 @@ class MapProvider extends ChangeNotifier {
         notifyListeners();
     }
 
-    bool isOperatorIdle = true;
-    Booking? currentUserSelected;
+    bool isUserClick = false;
+    Booking? currentBooking;
+
+    void setFocusBooking(Booking booking) async{
+      currentBooking = booking;
+      isUserClick = true;
+      notifyListeners();
+    }
+
+    void removeFocus() async{
+      isUserClick = false;
+      notifyListeners();
+    }
+
 }

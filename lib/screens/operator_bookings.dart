@@ -46,6 +46,9 @@ class _OperatorBookingsState extends State<OperatorBookings> {
   String? address = "Getting...";
   String _locationText = "Loc";
 
+  Map symbolIdtoBooking = {};
+  Symbol? lastClickSymbol;
+
   @override
   void initState() {
     super.initState();
@@ -79,66 +82,22 @@ class _OperatorBookingsState extends State<OperatorBookings> {
 
   }
 
-  // void initLocationService() async {
-  //   LocationData? location;
-  //   bool serviceEnabled;
-  //   bool serviceRequestResult;
-
-  //   try {
-  //     serviceEnabled = await _locationService.serviceEnabled();
-
-  //     if (serviceEnabled) {
-  //       final permission = await _locationService.requestPermission();
-  //       _permission = permission == PermissionStatus.granted;
-
-  //       await _locationService.changeSettings(
-  //         accuracy: LocationAccuracy.high,
-  //         interval: 1000,
-  //       );
-
-  //       if (_permission) {
-  //         location = await _locationService.getLocation();
-  //         _currentLocation = location;
-  //         print(_currentLocation);
-  //         // Symbol symbol = await _mapController.addSymbol(SymbolOptions(geometry: LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)));
-
-  //       }
-  //     } else {
-  //       serviceRequestResult = await _locationService.requestService();
-  //       if (serviceRequestResult) {
-  //         initLocationService();
-  //         return;
-  //       }
-  //     }
-  //   } on PlatformException catch (e) {
-  //     debugPrint(e.toString());
-  //     if (e.code == 'PERMISSION_DENIED') {
-  //       _serviceError = e.message;
-  //     } else if (e.code == 'SERVICE_STATUS_ERROR') {
-  //       _serviceError = e.message;
-  //     }
-  //     location = null;
-  //   }
-  // }
-
-
-  void addOrUpdateLocationMarker(LatLng latlng) async {
-    if(location_pin == null){
-      location_pin = await _mapController.addSymbol(SymbolOptions(
+  SymbolOptions createNormalSymbol(LatLng latLng){
+      return SymbolOptions(
           draggable: true,
-          iconSize: 1.5,
-          geometry: latlng));
-    } else {
-      _mapController.updateSymbol(location_pin!, SymbolOptions(
-          draggable: true,
-          iconSize: 1.5,
-          geometry: latlng));
-    }
-
-    await _mapController.easeCamera(
-            CameraUpdate.newLatLngZoom(
-                latlng, 14));
+          iconImage: "iconuser",
+          iconSize: 0.5,
+          geometry: latLng);
   }
+
+  SymbolOptions createHighlightSymbol(LatLng latLng){
+      return SymbolOptions(
+          draggable: true,
+          iconImage: "iconuser",
+          iconSize: 0.66,
+          geometry: latLng);
+  }
+
 
   Future<void> addImageFromAsset(String name, String assetName) async {
     final ByteData bytes = await rootBundle.load(assetName);
@@ -159,69 +118,43 @@ class _OperatorBookingsState extends State<OperatorBookings> {
       var booking = e;
       LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
 
-      SymbolOptions symops = SymbolOptions(
-          draggable: true,
-          iconImage: "iconuser",
-          iconSize: 0.5,
-          geometry: latlng);
-
+      SymbolOptions symops = createNormalSymbol(latlng);
       Symbol sym = await _mapController.addSymbol(symops);
       pins[booking.bookingId!] = sym;
-      Provider.of<MapProvider>(context, listen: false).setPins(pins);
+      symbolIdtoBooking[sym.id] = booking;
+      
     }
-
-
-    // _locationText = "You have ${userMapPins.length} requests for service!";
-    // WidgetsBinding.instance.addPostFrameCallback((_) => setState((){}));
-    // TODO: Why? fix it, temp soln https://stackoverflow.com/questions/48844804/flutter-setstate-not-updating-inner-stateful-widget/63307118#63307118
-
+    Provider.of<MapProvider>(context, listen: false).setPins(pins);
   }
 
-  // void addOrUpdateBookingPins(Booking booking) async {
-  //   LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
-  //   print("latlng ${latlng.toString()}");
-  //   SymbolOptions symops = SymbolOptions(
-  //       draggable: true,
-  //       iconImage: "iconuser",
-  //       iconSize: 0.5,
-  //       geometry: latlng);
+  void utilHighlightOperator(Symbol symbol, bool highlight) async {
+    SymbolOptions change;
+    if(highlight){
+      change = createHighlightSymbol(symbol.options.geometry!);
+    }
+    else {
+      change = createNormalSymbol(symbol.options.geometry!);
+    }
+    await _mapController.updateSymbol(symbol, change);
+  }
 
-  //   print("keyidop: ${booking.bookingId}");
-  //     Symbol sym = await _mapController.addSymbol(symops);
-
-  //     userMapPins[booking.bookingId!] = sym;
-
-  //   // if(userMapPins.containsKey(booking.bookingId!)){
-  //   //   // Update marker
-  //   //   Symbol sym = userMapPins[booking.bookingId!];
-  //   //   await _mapController.updateSymbol(sym, symops);
-  //   // } else {
-  //   //   Symbol sym = await _mapController.addSymbol(symops);
-  //   //   userMapPins[booking.bookingId!] = sym;
-  //   // }
-  // }
-
-//   void registerDeregisterOperators() async {
-//       String lat = pinLocation.latitude.toString();
-//       String lon = pinLocation.longitude.toString();
-//       StreamGroup<OperatorData> streamgroup = await getAllOperatorsByMyLatLong(lat, lon);
-
-//       StreamSubscription<OperatorData> subscriber = streamgroup.stream.listen((OperatorData data) {
-//         addOrUpdateOperatorLocation(data);
-//         print("received data: ${data.toJson()}");
-//       },
-//       onError: (error) {
-//           print("Error in multistream");
-//           print(error);
-//       },
-//       onDone: () {
-//           print('Stream closed!');
-//       });
-//   }
 
   void symbolCallback(BuildContext context, Symbol symbol){
-    print("symbol! ${symbol.options.geometry!.toJson()}");
-    
+    if(lastClickSymbol != null){
+      utilHighlightOperator(lastClickSymbol!, false);
+      if(lastClickSymbol! == symbol){
+        Provider.of<MapProvider>(context, listen: false).removeFocus();
+        lastClickSymbol = null;
+        return;
+      }
+    }
+    utilHighlightOperator(symbol, true);
+
+    Booking booking = symbolIdtoBooking[symbol.id];
+    Provider.of<MapProvider>(context, listen: false).setFocusBooking(booking);
+
+    print("Clicked on booking with user ${booking.bookingId}");
+    lastClickSymbol = symbol;
   }
 
   @override
@@ -229,7 +162,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
     return Scaffold(
       backgroundColor: Color(0xFFFF4B3A),
       body: SlidingUpPanel(
-        maxHeight: 280,
+        maxHeight: 350,
         minHeight: 150,
         backdropEnabled: true,
         color: Colors.transparent,
@@ -242,7 +175,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
           ),
           child: Consumer<MapProvider>(
             builder: (context, model, child) {
-              if(!model.isOperatorIdle){
+              if(!model.isUserClick){
                   return Column(
                       children: [
                         const Icon(
@@ -263,7 +196,7 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                           ),
                         ),
                           subtitle: Text(
-                            'Mobile Number: 9305895903',
+                            'Good luck in serving all!',
                             style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w500,
                                 color: Color(0xFFB2B2B2),
@@ -316,14 +249,14 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                             size: 36,
                           ),
                           title: Text(
-                          "Updation (Slot : 1 pm to 2 pm)",
+                          model.currentBooking!.bookingType! == 0 ? "Updation" : "New Enrollment",
                           style: GoogleFonts.poppins(
                             textStyle:
                                 TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                           ),
                         ),
                           subtitle: Text(
-                            'B-116 Hostel C - Thapar University, Patiala, Punjab, India',
+                            model.currentBooking!.userdata!.locationText!,
                             style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w500,
                                 color: Color(0xFFB2B2B2),
@@ -337,9 +270,6 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                               // addBookingRequestPins();
                             },
                           ),
-                        ),
-                        const SizedBox(
-                          height: 10,
                         ),
                         Container(
                           height: 70,
