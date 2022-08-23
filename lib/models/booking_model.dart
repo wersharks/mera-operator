@@ -5,12 +5,14 @@ class Booking {
   String? phoneNo;
   BookingLocation? bookingLocation;
   Userdata? userdata;
-  int? confirmOtp;
+  String? confirmOtp;
   Paydata? paydata;
   String? bookingStatus;
   String? slotTime;
   String? slotDate;
   int? timestamp;
+ 
+  DateTime? date;
 
   Booking(
       {this.bookingId,
@@ -22,9 +24,11 @@ class Booking {
       this.confirmOtp,
       this.paydata,
       this.bookingStatus,
-      this.slotTime,
-      this.slotDate,
-      this.timestamp});
+
+      this.timestamp,
+    
+      this.date});
+
 
   Booking.fromJson(Map<String, dynamic> json) {
     bookingId = json['bookingId'];
@@ -44,6 +48,8 @@ class Booking {
     slotTime = json['slotTime'];
     slotDate = json['slotDate'];
     timestamp = json['timestamp'];
+   
+    date = json['date'].toDate();
   }
 
   Map<String, dynamic> toJson() {
@@ -66,6 +72,8 @@ class Booking {
     data['slotTime'] = this.slotTime;
     data['slotDate'] = this.slotDate;
     data['timestamp'] = this.timestamp;
+
+    data['date'] = this.date;
     return data;
   }
 }

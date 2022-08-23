@@ -206,8 +206,8 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                             icon: new Icon(Icons.refresh),
                             highlightColor: Colors.pink,
                             onPressed: () async{
-                              // await _mapController.clearSymbols();
-                              // addBookingRequestPins();
+                              await _mapController.clearSymbols();
+                              addBookingRequestPins(context);
                             },
                           ),
                         ),
@@ -266,8 +266,8 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                             icon: new Icon(Icons.refresh),
                             highlightColor: Colors.pink,
                             onPressed: () async{
-                              // await _mapController.clearSymbols();
-                              // addBookingRequestPins();
+                              await _mapController.clearSymbols();
+                              addBookingRequestPins(context);
                             },
                           ),
                         ),

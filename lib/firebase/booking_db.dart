@@ -24,10 +24,11 @@ CollectionReference _collectionRef =
                                     .orderBy('timestamp', descending: true)
                                     .get();
 
+        print("snap size is ${snap.size}");
         List<Booking> bookins = [];
         for(int i=0; i<snap.size; i++){
             Booking b = Booking.fromJson(snap.docs[i].data() as Map<String, dynamic>);
-            if(b.bookingStatus! != "Completed") continue;
+            if(b.bookingStatus! == "Completed") continue;
             bookins.add(b);
         }
 
