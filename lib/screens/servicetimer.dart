@@ -88,7 +88,7 @@ class _servicetimerState extends State<servicetimer> {
               ),
 
               SizedBox(
-                height: 30,
+                height: 60,
               ),
               Padding(
             padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
@@ -101,16 +101,22 @@ class _servicetimerState extends State<servicetimer> {
               textAlign: TextAlign.center,
             ),
           ),
+           SizedBox(
+                height: 100,
+              ),
               
 
               SizedBox(
                   width: 350,
                   height: 60,
                   child: TextButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xffF8774A))),
                       onPressed: () async {},
                       child: Text(
                         'Done Service',
-                        style: GoogleFonts.nunito(textStyle: TextStyle(color: Color.fromARGB(255, 169, 34, 34)),),
+                        style: GoogleFonts.nunito(textStyle: TextStyle(color: Color.fromARGB(255, 244, 240, 240)),),
                       )))
             ],
           )),
