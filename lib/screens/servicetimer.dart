@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ServiceTimeScreen extends StatefulWidget {
-  const ServiceTimeScreen({Key? key}) : super(key: key);
+class servicetimer extends StatefulWidget {
+  const servicetimer({Key? key}) : super(key: key);
 
   @override
-  State<ServiceTimeScreen> createState() => _ServiceTimeScreenState();
+  State<servicetimer> createState() => _servicetimerState();
 }
 
-class _ServiceTimeScreenState extends State<ServiceTimeScreen> {
+class _servicetimerState extends State<servicetimer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +50,7 @@ class _ServiceTimeScreenState extends State<ServiceTimeScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 5),
                           child: Text(
-                            'Finish',
+                            'Service',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -70,29 +70,47 @@ class _ServiceTimeScreenState extends State<ServiceTimeScreen> {
               SizedBox(
                 height: 20,
               ),
+               Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+            child: Text(
+              ' Service Timer',
+              style: TextStyle(fontWeight: FontWeight.bold,
+              fontSize: 20),
+              
+              
+              textAlign: TextAlign.center,
+            ),
+          ),
 
+             
               SizedBox(
-                height: 10,
-              ),
-              Image.asset(
-                'assets/checked.png',
-                width: 15,
-              ),
-              SizedBox(
-                height: 10,
+                height: 30,
               ),
 
               SizedBox(
                 height: 30,
               ),
+              Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+            child: Text(
+              ' After completing service click DONE',
+              style: TextStyle(
+              fontSize: 20),
+              
+              
+              textAlign: TextAlign.center,
+            ),
+          ),
+              
+
               SizedBox(
                   width: 350,
                   height: 60,
                   child: TextButton(
                       onPressed: () async {},
                       child: Text(
-                        'Next Booking',
-                        style: GoogleFonts.nunito(textStyle: TextStyle(color: Colors.white),),
+                        'Done Service',
+                        style: GoogleFonts.nunito(textStyle: TextStyle(color: Color.fromARGB(255, 169, 34, 34)),),
                       )))
             ],
           )),

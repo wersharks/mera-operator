@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mera_operator/screens/ServiceTimeScreen.dart';
+
 import 'package:mera_operator/screens/confirmUserScreen.dart';
 import 'package:mera_operator/screens/home_page.dart';
 import 'package:mera_operator/screens/loadingPage.dart';
@@ -13,6 +13,9 @@ import 'package:mapmyindia_gl/mapmyindia_gl.dart';
 
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:mera_operator/screens/finishpage.dart';
+import 'package:mera_operator/screens/servicetimer.dart';
+import 'package:mera_operator/screens/otpscreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +43,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: ServiceTimeScreen(),
+        home: finishpage(),
       ),
     );
   }
