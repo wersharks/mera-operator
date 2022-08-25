@@ -89,14 +89,6 @@ class _VerificationState extends State<Verification> {
 
       backgroundColor: Color(0xffF2F2F2),
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.black),
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          title: Text(
-              'OPERATOR LOGIN',
-              style: appBarTextStyle)),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mera_operator/screens/ServiceTimeScreen.dart';
+import 'package:mera_operator/screens/confirmUserScreen.dart';
 import 'package:mera_operator/screens/home_page.dart';
 import 'package:mera_operator/screens/loadingPage.dart';
 // import 'package:mera_aadhar/screens/loadingPage.dart';
-// import 'package:mera_aadhar/screens/verification.dart';
+import 'package:mera_operator/screens/verification.dart';
 // import 'package:mera_aadhar/services/auth/otp_signin.dart';
 import 'package:mera_operator/services/auth/operator_signin.dart';
 import 'package:mera_operator/providers/map_provider.dart';
-
+import 'package:mera_operator/screens/workList.dart';
 import 'package:mapmyindia_gl/mapmyindia_gl.dart';
 
 import 'package:provider/provider.dart';
@@ -38,7 +40,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: LoadingPage(),
+        home: ServiceTimeScreen(),
       ),
     );
   }
