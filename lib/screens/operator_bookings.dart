@@ -1,5 +1,6 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:mera_operator/screens/servicetimer.dart';
 import 'package:mera_operator/services/auth/operator_signin.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/services.dart';
@@ -28,8 +29,7 @@ class OperatorDirections extends StatefulWidget {
   const OperatorDirections({Key? key}) : super(key: key);
 
   @override
-  State<OperatorDirections> createState() =>
-      _OperatorDirectionsState();
+  State<OperatorDirections> createState() => _OperatorDirectionsState();
 }
 
 class _OperatorDirectionsState extends State<OperatorDirections> {
@@ -74,30 +74,27 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
       message: 'Users can see your live location',
       icon: '@mipmap/ic_launcher',
     );
-    await BackgroundLocation.startLocationService(
-      distanceFilter: 20);
-      BackgroundLocation.getLocationUpdates((location) {
-        sendToFirebase(location.latitude, location.longitude);
-      });
-
+    await BackgroundLocation.startLocationService(distanceFilter: 20);
+    BackgroundLocation.getLocationUpdates((location) {
+      sendToFirebase(location.latitude, location.longitude);
+    });
   }
 
-  SymbolOptions createNormalSymbol(LatLng latLng){
-      return SymbolOptions(
-          draggable: true,
-          iconImage: "iconuser",
-          iconSize: 0.5,
-          geometry: latLng);
+  SymbolOptions createNormalSymbol(LatLng latLng) {
+    return SymbolOptions(
+        draggable: true,
+        iconImage: "iconuser",
+        iconSize: 0.5,
+        geometry: latLng);
   }
 
-  SymbolOptions createHighlightSymbol(LatLng latLng){
-      return SymbolOptions(
-          draggable: true,
-          iconImage: "iconuser",
-          iconSize: 0.66,
-          geometry: latLng);
+  SymbolOptions createHighlightSymbol(LatLng latLng) {
+    return SymbolOptions(
+        draggable: true,
+        iconImage: "iconuser",
+        iconSize: 0.66,
+        geometry: latLng);
   }
-
 
   Future<void> addImageFromAsset(String name, String assetName) async {
     final ByteData bytes = await rootBundle.load(assetName);
@@ -110,39 +107,37 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
     BookingDB bdb = new BookingDB();
     List<Booking> lst = await bdb.getOperatorCurrentBooking();
     print("list size ${lst.length}");
-    
+
     // _locationText = "You have ${lst.length} requests for service!";
     // _locationText = "lloaed";
     var pins = new Map();
-    for(final e in lst){
+    for (final e in lst) {
       var booking = e;
-      LatLng latlng = LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
+      LatLng latlng =
+          LatLng(booking.bookingLocation!.lat!, booking.bookingLocation!.lon!);
 
       SymbolOptions symops = createNormalSymbol(latlng);
       Symbol sym = await _mapController.addSymbol(symops);
       pins[booking.bookingId!] = sym;
       symbolIdtoBooking[sym.id] = booking;
-      
     }
     Provider.of<MapProvider>(context, listen: false).setPins(pins);
   }
 
   void utilHighlightOperator(Symbol symbol, bool highlight) async {
     SymbolOptions change;
-    if(highlight){
+    if (highlight) {
       change = createHighlightSymbol(symbol.options.geometry!);
-    }
-    else {
+    } else {
       change = createNormalSymbol(symbol.options.geometry!);
     }
     await _mapController.updateSymbol(symbol, change);
   }
 
-
-  void symbolCallback(BuildContext context, Symbol symbol){
-    if(lastClickSymbol != null){
+  void symbolCallback(BuildContext context, Symbol symbol) {
+    if (lastClickSymbol != null) {
       utilHighlightOperator(lastClickSymbol!, false);
-      if(lastClickSymbol! == symbol){
+      if (lastClickSymbol! == symbol) {
         Provider.of<MapProvider>(context, listen: false).removeFocus();
         lastClickSymbol = null;
         return;
@@ -158,9 +153,11 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
   }
 
   void addTargetPin(BuildContext context) async {
-    Booking bookin = Provider.of<MapProvider>(context, listen: false).currentBooking!;
-    
-    SymbolOptions symops = createNormalSymbol(LatLng(bookin.bookingLocation!.lat!, bookin.bookingLocation!.lon!));
+    Booking bookin =
+        Provider.of<MapProvider>(context, listen: false).currentBooking!;
+
+    SymbolOptions symops = createNormalSymbol(
+        LatLng(bookin.bookingLocation!.lat!, bookin.bookingLocation!.lon!));
     Symbol sym = await _mapController.addSymbol(symops);
   }
 
@@ -182,183 +179,188 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
           ),
           child: Consumer<MapProvider>(
             builder: (context, model, child) {
-              if(!model.isUserClick){
-                  return Column(
-                      children: [
-                        const Icon(
-                          Icons.arrow_drop_up_outlined,
-                          size: 40,
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.house,
-                            color: Colors.black,
-                            size: 36,
-                          ),
-                          title: Text(
-                          model.locationText,
-                          style: GoogleFonts.poppins(
-                            textStyle:
-                                TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                          ),
-                        ),
-                          subtitle: Text(
-                            'Good luck in serving all!',
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFB2B2B2),
-                                fontSize: 16),
-                          ),
-                          trailing: IconButton(
-                            icon: new Icon(Icons.refresh),
-                            highlightColor: Colors.pink,
-                            onPressed: () async{
-                              await _mapController.clearSymbols();
-                              addBookingRequestPins(context);
-                            },
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        Container(
-                          height: 70,
-                          width: 315,
-                          decoration: BoxDecoration(
-                              color: Color(0xFFF8774A),
-                              borderRadius: BorderRadius.circular(30)),
-                          child: Center(
-                            child: Text(
-                              'Select user to service!',
-                              style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15,
-                                      color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                      ],
-                  );
-              
-              }
-              else {
+              if (!model.isUserClick) {
                 return Column(
-                      children: [
-                        const Icon(
-                          Icons.arrow_drop_up_outlined,
-                          size: 40,
+                  children: [
+                    const Icon(
+                      Icons.arrow_drop_up_outlined,
+                      size: 40,
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.house,
+                        color: Colors.black,
+                        size: 36,
+                      ),
+                      title: Text(
+                        model.locationText,
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
                         ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.house,
-                            color: Colors.black,
-                            size: 36,
-                          ),
-                          title: Text(
-                          model.currentBooking!.bookingType! == 0 ? "Updation" : "New Enrollment",
+                      ),
+                      subtitle: Text(
+                        'Good luck in serving all!',
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFFB2B2B2),
+                            fontSize: 16),
+                      ),
+                      trailing: IconButton(
+                        icon: new Icon(Icons.refresh),
+                        highlightColor: Colors.pink,
+                        onPressed: () async {
+                          await _mapController.clearSymbols();
+                          addBookingRequestPins(context);
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      height: 70,
+                      width: 315,
+                      decoration: BoxDecoration(
+                          color: Color(0xFFF8774A),
+                          borderRadius: BorderRadius.circular(30)),
+                      child: Center(
+                        child: Text(
+                          'Select user to service!',
                           style: GoogleFonts.poppins(
-                            textStyle:
-                                TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                              textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                  color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    const Icon(
+                      Icons.arrow_drop_up_outlined,
+                      size: 40,
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.house,
+                        color: Colors.black,
+                        size: 36,
+                      ),
+                      title: Text(
+                        model.currentBooking!.bookingType! == 0
+                            ? "Updation"
+                            : "New Enrollment",
+                        style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
+                        ),
+                      ),
+                      subtitle: Text(
+                        model.currentBooking!.userdata!.locationText!,
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFFB2B2B2),
+                            fontSize: 16),
+                      ),
+                      trailing: IconButton(
+                        icon: new Icon(Icons.refresh),
+                        highlightColor: Colors.pink,
+                        onPressed: () async {
+                          await _mapController.clearSymbols();
+                          addBookingRequestPins(context);
+                        },
+                      ),
+                    ),
+                    // Container(
+                    //   height: 70,
+                    //   width: 315,
+                    //   child: Row (
+                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //   children: [
+                    //     Material(
+                    //       color: Colors.lightGreen, // button color
+                    //       child: InkWell(
+                    //         splashColor: Colors.green, // splash color
+                    //         onTap: () {}, // button pressed
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.center,
+                    //           children: <Widget>[
+                    //             Icon(Icons.call),
+                    //             Text("Call"), // icon // text
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(
+                    //       width: 5,
+                    //     ),
+                    //   ]
+                    // ),
+
+                    // ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        height: 70,
+                        width: 315,
+                        decoration: BoxDecoration(
+                            color: Color(0xFFF8774A),
+                            borderRadius: BorderRadius.circular(30)),
+                        child: Material(
+                          color: Colors.lightGreen, // button color
+                          child: InkWell(
+                            splashColor: Colors.green, // splash color
+                            onTap: () {}, // button pressed
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.call),
+                                Text("Call"), // icon // text
+                              ],
+                            ),
                           ),
                         ),
-                          subtitle: Text(
-                            model.currentBooking!.userdata!.locationText!,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => servicetimer()));
+                      },
+                      child: Container(
+                        height: 70,
+                        width: 315,
+                        decoration: BoxDecoration(
+                            color: Color(0xFFF8774A),
+                            borderRadius: BorderRadius.circular(30)),
+                        child: Center(
+                          child: Text(
+                            'Start Service',
                             style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFB2B2B2),
-                                fontSize: 16),
-                          ),
-                          trailing: IconButton(
-                            icon: new Icon(Icons.refresh),
-                            highlightColor: Colors.pink,
-                            onPressed: () async{
-                              await _mapController.clearSymbols();
-                              addBookingRequestPins(context);
-                            },
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors.white)),
                           ),
                         ),
-                        // Container(
-                        //   height: 70,
-                        //   width: 315,
-                        //   child: Row (
-                        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        //   children: [
-                        //     Material(
-                        //       color: Colors.lightGreen, // button color
-                        //       child: InkWell(
-                        //         splashColor: Colors.green, // splash color
-                        //         onTap: () {}, // button pressed
-                        //         child: Row(
-                        //           mainAxisAlignment: MainAxisAlignment.center,
-                        //           children: <Widget>[
-                        //             Icon(Icons.call),
-                        //             Text("Call"), // icon // text
-                        //           ],
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     const SizedBox(
-                        //       width: 5,
-                        //     ),
-                        //   ]
-                        // ),
-                        
-                        // ),
-                        ClipRRect (
-                          borderRadius: BorderRadius.circular(30),
-                          child:
-                            Container(
-                              height: 70,
-                              width: 315,
-                              decoration: BoxDecoration(
-                                  color: Color(0xFFF8774A),
-                                  borderRadius: BorderRadius.circular(30)),
-                              child: Material(
-                                  color: Colors.lightGreen, // button color
-                                  child: InkWell(
-                                    splashColor: Colors.green, // splash color
-                                    onTap: () {}, // button pressed
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Icon(Icons.call),
-                                        Text("Call"), // icon // text
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        
-                        Container(
-                          height: 70,
-                          width: 315,
-                          decoration: BoxDecoration(
-                              color: Color(0xFFF8774A),
-                              borderRadius: BorderRadius.circular(30)),
-                          child: Center(
-                            child: Text(
-                              'Confirmation OTP',
-                              style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15,
-                                      color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                      ],
-                  );
-              
+                      ),
+                    ),
+                  ],
+                );
               }
             },
           ),
         ),
-        
         body: Column(
           children: [
             const SizedBox(
@@ -402,7 +404,8 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
                         // });
                       },
                       onStyleLoadedCallback: () {
-                        addImageFromAsset("iconuser", "assets/userpin_blue.png");
+                        addImageFromAsset(
+                            "iconuser", "assets/userpin_blue.png");
                         addTargetPin(context);
                         // addBookingRequestPins(context);
                         // openMapmyIndiaPlacePickerWidget();
@@ -412,7 +415,8 @@ class _OperatorDirectionsState extends State<OperatorDirections> {
                 )),
                 GestureDetector(
                   onTap: () {
-                    Provider.of<OperatorAuth>(context, listen: false).oplogout(context);
+                    Provider.of<OperatorAuth>(context, listen: false)
+                        .oplogout(context);
                   },
                   child: Padding(
                     padding: EdgeInsets.all(25),

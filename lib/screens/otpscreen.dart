@@ -1,17 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mera_operator/screens/finishpage.dart';
 
-class otpscreen extends StatefulWidget {
-  const otpscreen({Key? key}) : super(key: key);
+class OTPScreen extends StatefulWidget {
+  const OTPScreen({Key? key}) : super(key: key);
 
   @override
-  State<otpscreen> createState() => _otpscreenState();
+  State<OTPScreen> createState() => _OTPScreenState();
 }
 
-class _otpscreenState extends State<otpscreen> {
+class _OTPScreenState extends State<OTPScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       floatingActionButton: FloatingActionButton(
+        child: Container(
+            width: 60,
+            height: 60,
+            child: Icon(
+              Icons.arrow_forward,
+              size: 30,
+            ),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                    colors: [Color(0xffF8774A), Color(0xffF8774A)],
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft))),
+        onPressed: () {
+     
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => FinishPage()));
+          
+        },
+      ),
       backgroundColor: Color(0xffF2F2F2),
       extendBodyBehindAppBar: true,
       body: SafeArea(

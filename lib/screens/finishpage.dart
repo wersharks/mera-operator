@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class finishpage extends StatefulWidget {
-  const finishpage({Key? key}) : super(key: key);
+class FinishPage extends StatefulWidget {
+  const FinishPage({Key? key}) : super(key: key);
 
   @override
-  State<finishpage> createState() => _finishpageState();
+  State<FinishPage> createState() => _FinishPageState();
 }
 
-class _finishpageState extends State<finishpage> {
+class _FinishPageState extends State<FinishPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

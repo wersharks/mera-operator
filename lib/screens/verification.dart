@@ -7,6 +7,7 @@ import 'package:mera_operator/services/auth/operator_signin.dart';
 import 'package:mera_operator/utilities/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:mera_operator/utilities/size_config.dart';
+import 'workList.dart';
 
 class Verification extends StatefulWidget {
   const Verification({Key? key}) : super(key: key);
@@ -36,22 +37,21 @@ class _VerificationState extends State<Verification> {
   }
 
   String? validateEmail(String? value) {
-      String pattern =
-          r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-          r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-          r"{0,253}[a-zA-Z0-9])?)*$";
-      RegExp regex = RegExp(pattern);
-      if (value == null || value.isEmpty || !regex.hasMatch(value))
-        return 'Enter a valid email address';
-      else
-        return null;
-    }
-
+    String pattern =
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?)*$";
+    RegExp regex = RegExp(pattern);
+    if (value == null || value.isEmpty || !regex.hasMatch(value))
+      return 'Enter a valid email address';
+    else
+      return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset : false,
+      resizeToAvoidBottomInset: false,
       floatingActionButton: (isOTPScreen)
           ? FloatingActionButton(
               child: Container(
@@ -67,26 +67,22 @@ class _VerificationState extends State<Verification> {
                           colors: [Color(0xffF8774A), Color(0xffF8774A)],
                           begin: Alignment.topRight,
                           end: Alignment.bottomLeft))),
-              onPressed: ()async {
-
- if (isOTPScreen ) {
-                          setState(() {
-                            // Provider.of<Auth>(context, listen: false)
-                            //     .isLoading = true;
-                          });
-                        //   await Provider.of<Auth>(context, listen: false)
-                        //       .submitOTP(context);
-                          setState(() {
-                            // Provider.of<Auth>(context, listen: false)
-                            //     .isLoading = false;
-                          });
-                        }
-
-
+              onPressed: () async {
+                if (isOTPScreen) {
+                  setState(() {
+                    // Provider.of<Auth>(context, listen: false)
+                    //     .isLoading = true;
+                  });
+                  //   await Provider.of<Auth>(context, listen: false)
+                  //       .submitOTP(context);
+                  setState(() {
+                    // Provider.of<Auth>(context, listen: false)
+                    //     .isLoading = false;
+                  });
+                }
               },
             )
           : null,
-
       backgroundColor: Color(0xffF2F2F2),
       extendBodyBehindAppBar: true,
       body: SafeArea(
@@ -157,140 +153,138 @@ class _VerificationState extends State<Verification> {
               height: 30,
             ),
             if (isOTPScreen) Text('Enter OTP', style: oTextStyle),
-            Text(
-                "Please login!",
-                style: textStyle),
+            Text("Please login!", style: textStyle),
             SizedBox(
               height: 20,
             ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 35),
-                child: Form(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  key: _formKey,
-                  child: Focus(
-                    onFocusChange: (hasFocus) {
-                      setState(() {});
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35),
+              child: Form(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                key: _formKey,
+                child: Focus(
+                  onFocusChange: (hasFocus) {
+                    setState(() {});
+                  },
+                  child: TextFormField(
+                    validator: (value) => validateEmail(value),
+                    onChanged: (value) {
+                      Provider.of<OperatorAuth>(context, listen: false).email =
+                          value;
                     },
-                    child: TextFormField(
-                      validator: (value) => validateEmail(value),
-
-                      onChanged: (value) {
-                        Provider.of<OperatorAuth>(context, listen: false).email =
-                            value;
-                      },
-
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        counterText: '',
-                        labelStyle: TextStyle(
-                            color: mobileNumberFocusNode.hasFocus
-                                ? Colors.orange
-                                : Colors.black54),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        labelText: 'Email',
-                      ),
-
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      counterText: '',
+                      labelStyle: TextStyle(
+                          color: mobileNumberFocusNode.hasFocus
+                              ? Colors.orange
+                              : Colors.black54),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      labelText: 'Email',
                     ),
                   ),
                 ),
               ),
-              SizedBox(
-                height: 8,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 35),
-                child: Form(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Focus(
-                    onFocusChange: (hasFocus) {
-                      setState(() {});
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35),
+              child: Form(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Focus(
+                  onFocusChange: (hasFocus) {
+                    setState(() {});
+                  },
+                  child: TextFormField(
+                    onChanged: (value) {
+                      Provider.of<OperatorAuth>(context, listen: false)
+                          .password = value;
                     },
-                    child: TextFormField(
-                        onChanged: (value) {
-                          Provider.of<OperatorAuth>(context, listen: false).password =
-                              value;
+
+                    keyboardType: TextInputType.text,
+                    // controller: _userPasswordController,
+                    obscureText:
+                        !_passwordVisible, //This will obscure text dynamically
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+
+                      fillColor: Colors.white,
+                      filled: true,
+                      counterText: '',
+                      labelStyle: TextStyle(
+                          color: mobileNumberFocusNode.hasFocus
+                              ? Colors.orange
+                              : Colors.black54),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+
+                      // Here is key idea
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          // Based on passwordVisible state choose the icon
+                          _passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Theme.of(context).primaryColorDark,
+                        ),
+                        onPressed: () {
+                          // Update the state i.e. toogle the state of passwordVisible variable
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
                         },
-
-                        keyboardType: TextInputType.text,
-                        // controller: _userPasswordController,
-                        obscureText: !_passwordVisible,//This will obscure text dynamically
-                        decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter your password',
-                          
-                            fillColor: Colors.white,
-                            filled: true,
-                            counterText: '',
-                            labelStyle: TextStyle(
-                                color: mobileNumberFocusNode.hasFocus
-                                    ? Colors.orange
-                                    : Colors.black54),
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-
-                            // Here is key idea
-                            suffixIcon: IconButton(
-                                icon: Icon(
-                                  // Based on passwordVisible state choose the icon
-                                  _passwordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                                  color: Theme.of(context).primaryColorDark,
-                                  ),
-                                onPressed: () {
-                                  // Update the state i.e. toogle the state of passwordVisible variable
-                                  setState(() {
-                                      _passwordVisible = !_passwordVisible;
-                                  });
-                                },
-                                ),
-                              ),
-                            ),
-
+                      ),
+                    ),
                   ),
                 ),
               ),
-              SizedBox(
-                height: 16,
-              ),
-              SizedBox(
-                width: 325,
-                height: getProportionateScreenHeight(50),
-                child: TextButton(
-                        style: buttonStyle,
-                        onPressed: () async {
-                            Provider.of<OperatorAuth>(context, listen: false).oplogin(context);
-                        },
-                        child: Text(
-                        'Login',
-                          style: buttonTextStyle,
-                        )),
-                ),
-            
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            SizedBox(
+              width: 325,
+              height: getProportionateScreenHeight(50),
+              child: TextButton(
+                  style: buttonStyle,
+                  onPressed: () async {
+                    Provider.of<OperatorAuth>(context, listen: false)
+                        .oplogin(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WorkListScreen()));
+                  },
+                  child: Text(
+                    'Login',
+                    style: buttonTextStyle,
+                  )),
+            ),
+
             // if (isOTPScreen)
             //   SizedBox(
             //     height: 10,
             //   ),
             // if (isOTPScreen)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Text("Didn't get OTP? ", style: textStyle),
-                  // TextButton(
-                  //     onPressed: () {},
-                  //     child: Text(
-                  //       'Resend',
-                  //       style: TextStyle(color: Colors.red, fontSize: 17),
-                  //     ))
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Text("Didn't get OTP? ", style: textStyle),
+                // TextButton(
+                //     onPressed: () {},
+                //     child: Text(
+                //       'Resend',
+                //       style: TextStyle(color: Colors.red, fontSize: 17),
+                //     ))
+              ],
+            ),
             SizedBox(
               height: 30,
             ),

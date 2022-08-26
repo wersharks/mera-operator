@@ -164,7 +164,10 @@ class _WorkListScreenState extends State<WorkListScreen> {
 
                           /// handles others as you did on question
                           else {
-                            return CircularProgressIndicator();
+                            return SizedBox(
+                              
+                              height: 200,
+                              child: Center(child: CircularProgressIndicator()));
                           }
                         },
 
