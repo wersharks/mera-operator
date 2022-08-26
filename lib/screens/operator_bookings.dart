@@ -24,15 +24,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mera_operator/providers/map_provider.dart';
 import 'package:provider/provider.dart';
 
-class OperatorBookings extends StatefulWidget {
-  const OperatorBookings({Key? key}) : super(key: key);
+class OperatorDirections extends StatefulWidget {
+  const OperatorDirections({Key? key}) : super(key: key);
 
   @override
-  State<OperatorBookings> createState() =>
-      _OperatorBookingsState();
+  State<OperatorDirections> createState() =>
+      _OperatorDirectionsState();
 }
 
-class _OperatorBookingsState extends State<OperatorBookings> {
+class _OperatorDirectionsState extends State<OperatorDirections> {
   late MapmyIndiaMapController _mapController;
   LatLng pinLocation = LatLng(25.321684, 82.987289);
   Symbol? location_pin = null;
@@ -157,6 +157,13 @@ class _OperatorBookingsState extends State<OperatorBookings> {
     lastClickSymbol = symbol;
   }
 
+  void addTargetPin(BuildContext context) async {
+    Booking bookin = Provider.of<MapProvider>(context, listen: false).currentBooking!;
+    
+    SymbolOptions symops = createNormalSymbol(LatLng(bookin.bookingLocation!.lat!, bookin.bookingLocation!.lon!));
+    Symbol sym = await _mapController.addSymbol(symops);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -271,16 +278,43 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                             },
                           ),
                         ),
-                        Container(
-                          height: 70,
-                          width: 315,
-                          child: Row (
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            SizedBox.fromSize(
-                              size: Size(65, 65), // button width and height
-                              child: ClipOval(
-                                child: Material(
+                        // Container(
+                        //   height: 70,
+                        //   width: 315,
+                        //   child: Row (
+                        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        //   children: [
+                        //     Material(
+                        //       color: Colors.lightGreen, // button color
+                        //       child: InkWell(
+                        //         splashColor: Colors.green, // splash color
+                        //         onTap: () {}, // button pressed
+                        //         child: Row(
+                        //           mainAxisAlignment: MainAxisAlignment.center,
+                        //           children: <Widget>[
+                        //             Icon(Icons.call),
+                        //             Text("Call"), // icon // text
+                        //           ],
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     const SizedBox(
+                        //       width: 5,
+                        //     ),
+                        //   ]
+                        // ),
+                        
+                        // ),
+                        ClipRRect (
+                          borderRadius: BorderRadius.circular(30),
+                          child:
+                            Container(
+                              height: 70,
+                              width: 315,
+                              decoration: BoxDecoration(
+                                  color: Color(0xFFF8774A),
+                                  borderRadius: BorderRadius.circular(30)),
+                              child: Material(
                                   color: Colors.lightGreen, // button color
                                   child: InkWell(
                                     splashColor: Colors.green, // splash color
@@ -294,38 +328,12 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                                     ),
                                   ),
                                 ),
-                              ),
                             ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            SizedBox.fromSize(
-                              size: Size(65, 65), // button width and height
-                              child: ClipOval(
-                                child: Material(
-                                  color: Colors.orange, // button color
-                                  child: InkWell(
-                                    splashColor: Colors.blue, // splash color
-                                    onTap: () {}, // button pressed
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Icon(Icons.directions), // icon
-                                        Text("Nav"),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ]
                         ),
-                        
-                        ),
-                        
                         const SizedBox(
                           height: 10,
                         ),
+                        
                         Container(
                           height: 70,
                           width: 315,
@@ -389,13 +397,14 @@ class _OperatorBookingsState extends State<OperatorBookings> {
                       myLocationTrackingMode: MyLocationTrackingMode.Tracking,
                       onMapCreated: (map) async {
                         _mapController = map;
-                        _mapController.onSymbolTapped.add((Symbol symbol){
-                          symbolCallback(context, symbol);
-                        });
+                        // _mapController.onSymbolTapped.add((Symbol symbol){
+                        //   // symbolCallback(context, symbol);
+                        // });
                       },
                       onStyleLoadedCallback: () {
                         addImageFromAsset("iconuser", "assets/userpin_blue.png");
-                        addBookingRequestPins(context);
+                        addTargetPin(context);
+                        // addBookingRequestPins(context);
                         // openMapmyIndiaPlacePickerWidget();
                       },
                     ),

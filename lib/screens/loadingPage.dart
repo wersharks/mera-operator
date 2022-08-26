@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // import 'package:mera_operator/screens/onBoardingPage.dart';
 import 'package:mera_operator/screens/verification.dart';
 import 'package:mera_operator/screens/operator_bookings.dart';
+import 'package:mera_operator/screens/workList.dart';
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _LoadingPageState extends State<LoadingPage> {
   Widget build(BuildContext context) {
     Timer(Duration(seconds: 2), () {
       (FirebaseAuth.instance.currentUser!=null)? Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (BuildContext context) => OperatorBookings())):
+          builder: (BuildContext context) => WorkListScreen())):
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (BuildContext context) => Verification()));
     });
