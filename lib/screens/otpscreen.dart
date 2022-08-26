@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mera_operator/screens/finishpage.dart';
+import 'package:mera_operator/services/auth/operator_signin.dart';
+import 'package:mera_operator/utilities/size_config.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import '../utilities/constants.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({Key? key}) : super(key: key);
@@ -10,6 +15,8 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
+  FocusNode otpFocusNode = FocusNode();
+   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,12 +100,97 @@ class _OTPScreenState extends State<OTPScreen> {
                 height: 20,
               ),
               
+
+            
+
+
              
               SizedBox(
                 height: 30,
               ),
 
-             
+            Text('Enter OTP', style: oTextStyle),
+            Text( 'Enter the OTP received from user.',
+                style: textStyle),
+            SizedBox(
+              height: 20,
+            ),
+           
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Focus(
+                  focusNode: otpFocusNode,
+                  child: OtpTextField(
+                    onSubmit: (value) {
+                      Provider.of<OperatorAuth>(context, listen: false).otp = value;
+                      print(value);
+                    },
+                    cursorColor:
+                        otpFocusNode.hasFocus ? Colors.orange : Colors.black54,
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    filled: true,
+                    fillColor: Colors.white,
+                    borderColor: Colors.white,
+                    focusedBorderColor: Colors.white,
+                    enabledBorderColor: Colors.white,
+                    showFieldAsBox: true,
+                    numberOfFields: 6,
+                  ),
+                ),
+              ),
+           
+              SizedBox(
+                height: 10,
+              ),
+      
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Didn't get OTP? ", style: textStyle),
+                  TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Resend',
+                        style: TextStyle(color: Colors.red, fontSize: 17),
+                      ))
+                ],
+              ),
+            SizedBox(
+              height: 30,
+            ),
+       SizedBox(
+              width: 325,
+              height: getProportionateScreenHeight(50),
+              child: !Provider.of<OperatorAuth>(context).isLoading
+                  ? TextButton(
+                      style: buttonStyle,
+                      onPressed: () async {
+                        
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            Provider.of<OperatorAuth>(context, listen: false)
+                                .isLoading = true;
+                          });
+                          await Provider.of<OperatorAuth>(context, listen: false)
+                              .submitPhoneNumber(context);
+                          setState(() {
+                            Provider.of<OperatorAuth>(context, listen: false)
+                                .isLoading = false;
+                    
+                            
+                          });
+                        }
+                       
+                      },
+                      child: Text(
+                       'Request OTP',
+                        style: buttonTextStyle,
+                      ))
+                  : Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.redAccent,
+                      ),
+                    ),)
               
               
 
